@@ -11,15 +11,11 @@
     tools:ignore="HardcodedText">
 
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/mp3player"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="КАЛЬКУЛЯТОР"
-        android:textColor="@color/white"
-        android:textSize="26dp"
-        android:gravity="center"/>
-
+        android:text="MP3 player" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

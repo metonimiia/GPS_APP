@@ -13,6 +13,9 @@
         android:theme="@style/Theme.GPS_APP"
         tools:targetApi="31">
         <activity
+            android:name=".mp3player"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

@@ -1,5 +1,6 @@
 package com.example.gps_app
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -26,6 +27,11 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+        val button = findViewById<Button>(R.id.mp3player)
+        button.setOnClickListener {
+            val intent = Intent(this, mp3player::class.java)
+            startActivity(intent)
         }
     }
     fun numberAction(view: View)//Функция чисел
@@ -157,3 +163,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+
+
+
+
