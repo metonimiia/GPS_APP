@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#673AB7"
+    android:background="#4913A4"
     tools:context=".mp3player"
     tools:ignore="MissingConstraints">
 
@@ -31,11 +31,12 @@
 
     <Button
         android:id="@+id/stop"
-        android:layout_width="93dp"
+        android:layout_width="101dp"
         android:layout_height="47dp"
         android:layout_marginBottom="44dp"
         android:text="Stop"
         android:textSize="10dp"
+        app:icon="@android:drawable/presence_busy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -64,7 +65,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/playpause"
         app:layout_constraintHorizontal_bias="0.47"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="#6AFFFFFF" />
 
     <Button
         android:id="@+id/next"
@@ -117,5 +119,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/prev"
         app:layout_constraintVertical_bias="0.451" />
+
+    <TextView
+        android:id="@+id/songname"
+        android:layout_width="327dp"
+        android:layout_height="42dp"
+        android:text="Playing:"
+        android:textColor="@color/white"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/musicbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.285"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.979" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
