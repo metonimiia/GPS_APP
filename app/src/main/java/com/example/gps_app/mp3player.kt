@@ -22,6 +22,7 @@ class mp3player : AppCompatActivity() {
     private lateinit var musicbar: SeekBar
     private lateinit var volume: SeekBar
     private val handler = Handler(Looper.getMainLooper())
+    private var cyclevalue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +68,11 @@ class mp3player : AppCompatActivity() {
         }
 
         cycleButton.setOnClickListener {
-            mediaPlayer.isLooping = !mediaPlayer.isLooping
+            if (mediaPlayer.isLooping) {
+                mediaPlayer.isLooping = false
+            } else {
+                mediaPlayer.isLooping = true
+            }
         }
 
         nextButton.setOnClickListener {
@@ -140,6 +145,10 @@ class mp3player : AppCompatActivity() {
         mediaPlayer.start()
         trackName()
         updateSeekBar()
+    }
+    fun cyclemedia(){
+        cyclevalue = !cyclevalue
+
     }
 
     private fun updateSeekBar() {
