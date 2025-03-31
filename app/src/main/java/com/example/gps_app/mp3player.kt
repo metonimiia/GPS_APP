@@ -1,28 +1,33 @@
 package com.example.gps_app
 
+import android.Manifest
 import android.content.Intent
 import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.io.File
 
 class mp3player : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private var trackIndex = 0
-    private val tracki = arrayOf(R.raw.test, R.raw.test1)
-    private val trackNames = arrayOf("test", "test1")
+    private var tracki: MutableList<Pair<String, Uri>> = mutableListOf()
     private lateinit var songname: TextView
     private lateinit var musicbar: SeekBar
     private lateinit var volume: SeekBar
     private val handler = Handler(Looper.getMainLooper())
-    private var cyclevalue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,43 +40,59 @@ class mp3player : AppCompatActivity() {
             insets
         }
 
+        val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                playMusic()
+                Toast.makeText(this, "Разрешения получены", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Пожалуйста выдайте разрешение", Toast.LENGTH_LONG).show()
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
         val playPauseButton = findViewById<Button>(R.id.playpause)
+        val cycleonoff = findViewById<TextView>(R.id.onoffcycle)
         val stopButton = findViewById<Button>(R.id.stop)
-        val cycleButton = findViewById<Button>(R.id.cycle)
         val nextButton = findViewById<Button>(R.id.next)
         val prevButton = findViewById<Button>(R.id.prev)
-        val calculatorButton = findViewById<Button>(R.id.calculator)
+        val cycleButton = findViewById<Button>(R.id.cycle)
+        val calculatorButton = findViewById<Button>(R.id.mainactivity)
         songname = findViewById(R.id.songname)
         musicbar = findViewById(R.id.musicbar)
         volume = findViewById(R.id.volume)
-        mediaPlayer = MediaPlayer.create(this, tracki[trackIndex])
-        musicbar.max = mediaPlayer.duration
-        trackName()
+
+        mediaPlayer = MediaPlayer()
+
         playPauseButton.setOnClickListener {
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.pause()
                 playPauseButton.text = "Play"
-            } else {
+            } else
                 mediaPlayer.start()
                 playPauseButton.text = "Pause"
                 updateSeekBar()
+        }
+
+        cycleButton.setOnClickListener {
+            if (mediaPlayer.isLooping) {
+                mediaPlayer.isLooping = false
+                cycleonoff.text = "Cycle Off"
+            } else {
+                mediaPlayer.isLooping = true
+                cycleonoff.text = "Cycle On"
             }
         }
 
         stopButton.setOnClickListener {
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.stop()
-                mediaPlayer.prepare()
-                musicbar.progress = 0
+                mediaPlayer.reset()
                 playPauseButton.text = "Play"
-            }
-        }
-
-        cycleButton.setOnClickListener {
-            if (mediaPlayer.isLooping) {
-                mediaPlayer.isLooping = false
-            } else {
-                mediaPlayer.isLooping = true
+                musicbar.progress = 0
             }
         }
 
@@ -89,66 +110,73 @@ class mp3player : AppCompatActivity() {
         }
     }
 
+    private fun playMusic() {
+        val musicPath = Environment.getExternalStorageDirectory().path + "/Music"
+        val directory = File(musicPath)
+        if (!directory.exists() || !directory.isDirectory) {
+            return
+        }
+        directory.listFiles { file ->
+            file.isFile && file.name.endsWith(".mp3", ignoreCase = true)
+        }?.forEach { mp3File ->
+            val title = mp3File.nameWithoutExtension
+            val contentUri = Uri.fromFile(mp3File)
+            tracki.add(Pair(title, contentUri))
+        }
+        if (tracki.isNotEmpty()) {
+            trackIndex = 0
+            songname.text = "Playing: ${tracki[0].first}"
+        }
+    }
+
     override fun onStart() {
         super.onStart()
-
-
         musicbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     mediaPlayer.seekTo(progress)
                 }
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
+        volume.progress = 50
         volume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val volumemusic = progress / 100f
                 mediaPlayer.setVolume(volumemusic, volumemusic)
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
-    }
-    private fun trackName(){
-        songname.text = "Playing: ${trackNames[trackIndex]}"
-    }
 
     private fun nextTrack() {
+        if (tracki.isEmpty())
+            return
         trackIndex = (trackIndex + 1) % tracki.size
         play()
     }
 
+
     private fun prevTrack() {
+        if (tracki.isEmpty())
+            return
         trackIndex = (trackIndex - 1 + tracki.size) % tracki.size
         play()
     }
 
     private fun play() {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-        }
-        mediaPlayer.release()
-        mediaPlayer = MediaPlayer.create(this, tracki[trackIndex])
-        musicbar.max = mediaPlayer.duration
+        val currentTrack = tracki[trackIndex].second
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(applicationContext, currentTrack)
+        mediaPlayer.prepare()
         mediaPlayer.start()
-        trackName()
+        musicbar.max = mediaPlayer.duration
+        songname.text = "Playing: ${tracki[trackIndex].first}"
         updateSeekBar()
-    }
-    fun cyclemedia(){
-        cyclevalue = !cyclevalue
-
     }
 
     private fun updateSeekBar() {
@@ -164,8 +192,8 @@ class mp3player : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        mediaPlayer.stop()
         mediaPlayer.release()
         handler.removeCallbacksAndMessages(null)
     }
 }
-

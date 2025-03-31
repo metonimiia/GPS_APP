@@ -10,10 +10,10 @@
     tools:ignore="MissingConstraints">
 
     <Button
-        android:id="@+id/calculator"
+        android:id="@+id/mainactivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="calculator"
+        android:text="MainActivity"
         tools:ignore="MissingConstraints" />
 
     <SeekBar
@@ -133,5 +133,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.979" />
+
+    <TextView
+        android:id="@+id/onoffcycle"
+        android:layout_width="63dp"
+        android:layout_height="20dp"
+        android:text="Cycle off"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.229"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.86" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
