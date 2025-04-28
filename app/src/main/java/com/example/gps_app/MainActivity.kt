@@ -29,5 +29,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, mp3player::class.java)
             startActivity(intent)
         }
+        val gpsbutton = findViewById<Button>(R.id.togps)
+        gpsbutton.setOnClickListener {
+            val intent = Intent(this, GPS_coord::class.java)
+            startActivity(intent)
+        }
     }
 }
