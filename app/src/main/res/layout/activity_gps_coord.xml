@@ -72,6 +72,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Main Activity"
-        tools:layout_editor_absoluteX="3dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="4dp" />
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="389dp"
+        android:layout_height="255dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.871">
+
+        <TextView
+            android:id="@+id/json_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EEEEEE"
+            android:padding="8dp"
+            android:text=" "
+            android:textSize="14sp" />
+    </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
