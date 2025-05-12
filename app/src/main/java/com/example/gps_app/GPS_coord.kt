@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
@@ -138,7 +139,8 @@ class GPS_coord : AppCompatActivity() {
     }
 
     private fun saveLocationJson(lat: Double, lon: Double, alt: Double, curtime: String) {
-        val file = File(filesDir, "locationsGPS.json")
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val file = File(downloadsDir, "locationsGPS.json")
         val locationData = JSONObject().apply {
             put("Время", curtime)
             put("Широта", lat)
@@ -160,7 +162,8 @@ class GPS_coord : AppCompatActivity() {
     }
 
     private fun readJsonFile(): String {
-        val file = File(filesDir, "locationsGPS.json")
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val file = File(downloadsDir, "locationsGPS.json")
         return if (file.exists()) {
             file.readText()
         } else {
