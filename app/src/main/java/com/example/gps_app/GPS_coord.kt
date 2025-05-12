@@ -36,7 +36,7 @@ class GPS_coord : AppCompatActivity() {
     private lateinit var jsonOutput: TextView
     private lateinit var handler: Handler
     private lateinit var myFusedLocationProviderClient: FusedLocationProviderClient
-    private val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,28 +68,12 @@ class GPS_coord : AppCompatActivity() {
             getLocation()
         }
 
-        startTimeUpdates()
-
         val mainButton = findViewById<Button>(R.id.tomain)
         mainButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
     }
 
-    private fun startTimeUpdates() {
-        val timeUpdateRunnable = object : Runnable {
-            override fun run() {
-                updateTime()
-                handler.postDelayed(this, TimeUnit.SECONDS.toMillis(1))
-            }
-        }
-        handler.post(timeUpdateRunnable)
-    }
-
-    private fun updateTime() {
-        val currentTime = dateFormat.format(Date())
-        current_time.text = "Время: $currentTime"
-    }
 
     private fun checkPermissions(): Boolean {
         return ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
@@ -121,11 +105,13 @@ class GPS_coord : AppCompatActivity() {
                     val latitude = location.latitude
                     val longitude = location.longitude
                     val altitude = location.altitude
-                    val times = dateFormat.format(Date())
+                    val times = SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Date(location.time))
+
 
                     lat.text = "Широта: %.5f".format(latitude)
                     longit.text = "Долгота: %.5f".format(longitude)
                     alti.text = "Высота: %.3f м".format(altitude)
+                    current_time.text = "Время: $times"
 
                     saveLocationJson(latitude, longitude, altitude, times)
                     jsonOutput.text = readJsonFile()
