@@ -7,11 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -22,30 +18,34 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import org.json.JSONArray
 import org.json.JSONObject
+import org.zeromq.SocketType
+import org.zeromq.ZContext
+import org.zeromq.ZMQ
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 class GPS_coord : AppCompatActivity() {
+
     private lateinit var current_time: TextView
     private lateinit var longit: TextView
     private lateinit var lat: TextView
     private lateinit var alti: TextView
     private lateinit var jsonOutput: TextView
+    private lateinit var logView: TextView
     private lateinit var handler: Handler
     private lateinit var myFusedLocationProviderClient: FusedLocationProviderClient
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gps_coord)
+
         current_time = findViewById(R.id.realtime)
         longit = findViewById(R.id.longitude)
         lat = findViewById(R.id.latitude)
         alti = findViewById(R.id.altitude)
         jsonOutput = findViewById(R.id.json_output)
+        logView = findViewById(R.id.tvSockets)
         handler = Handler(Looper.getMainLooper())
         myFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         jsonOutput.text = readJsonFile()
@@ -68,18 +68,21 @@ class GPS_coord : AppCompatActivity() {
             getLocation()
         }
 
-        val mainButton = findViewById<Button>(R.id.tomain)
-        mainButton.setOnClickListener {
+        findViewById<Button>(R.id.tomain).setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
     }
 
+    private fun appendLog(text: String) {
+        runOnUiThread {
+            logView.append(text + "\n")
+        }
+    }
 
     private fun checkPermissions(): Boolean {
         return ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || ActivityCompat.checkSelfPermission(
-                    this, ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED)
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                        ActivityCompat.checkSelfPermission(this, ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -92,40 +95,57 @@ class GPS_coord : AppCompatActivity() {
         val locationRunnable = object : Runnable {
             override fun run() {
                 getLastLocation()
-                handler.postDelayed(this, 60000)
+                handler.postDelayed(this, 5000)
             }
         }
         handler.post(locationRunnable)
     }
 
     private fun getLastLocation() {
-        if (checkPermissions() && isLocationEnabled()) {
+        if (!checkPermissions()) {
+            Toast.makeText(this, "Нет разрешений на геолокацию", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (isLocationEnabled()) {
             myFusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
+                val timestamp = System.currentTimeMillis()
+                val times = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
+                current_time.text = "Время: $times"
+
                 if (location != null) {
                     val latitude = location.latitude
                     val longitude = location.longitude
                     val altitude = location.altitude
-                    val times = SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Date(location.time))
-
 
                     lat.text = "Широта: %.5f".format(latitude)
                     longit.text = "Долгота: %.5f".format(longitude)
                     alti.text = "Высота: %.3f м".format(altitude)
-                    current_time.text = "Время: $times"
+
+
 
                     saveLocationJson(latitude, longitude, altitude, times)
                     jsonOutput.text = readJsonFile()
+
+                    val jsonToSend = JSONObject().apply {
+                        put("Время", times)
+                        put("Широта", latitude)
+                        put("Долгота", longitude)
+                        put("Высота", altitude)
+                    }.toString()
+
+                    sendToServer(jsonToSend)
                 } else {
                     Toast.makeText(this, "Нет данных о местоположении", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            Toast.makeText(this, "Геолокация отключена или нет разрешений", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Геолокация отключена", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun saveLocationJson(lat: Double, lon: Double, alt: Double, curtime: String) {
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
         val file = File(downloadsDir, "locationsGPS.json")
         val locationData = JSONObject().apply {
             put("Время", curtime)
@@ -143,17 +163,49 @@ class GPS_coord : AppCompatActivity() {
         } else {
             JSONArray()
         }
+
         jsonLocation.put(locationData)
         file.writeText(jsonLocation.toString(4))
     }
 
     private fun readJsonFile(): String {
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
         val file = File(downloadsDir, "locationsGPS.json")
-        return if (file.exists()) {
-            file.readText()
-        } else {
-            "Файл locationsGPS.json не найден."
-        }
+        return if (file.exists()) file.readText() else "Файл locationsGPS.json не найден."
+    }
+
+    private fun sendToServer(jsonData: String) {
+        Thread {
+            val serverAddr = "tcp://172.20.10.2:2222"
+
+            try {
+                ZContext().use { context ->
+                    context.createSocket(SocketType.REQ).use { socket ->
+                        socket.connect(serverAddr)
+                        socket.receiveTimeOut = 2000
+
+                        socket.send(jsonData.toByteArray(Charsets.UTF_8))
+                        appendLog("[CLIENT] Отправил: $jsonData")
+
+                        val reply = socket.recv(0)
+                        if (reply != null) {
+                            val repStr = String(reply, Charsets.UTF_8)
+                            appendLog("[SERVER] Ответ: $repStr")
+                        } else {
+                            appendLog("[CLIENT] Нет ответа от сервера (timeout)")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                appendLog("[ERROR] ${e.localizedMessage}")
+            }
+        }.start()
+    }
+
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
     }
 }

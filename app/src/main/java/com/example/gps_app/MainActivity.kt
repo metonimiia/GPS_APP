@@ -34,5 +34,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, GPS_coord::class.java)
             startActivity(intent)
         }
+
     }
 }
