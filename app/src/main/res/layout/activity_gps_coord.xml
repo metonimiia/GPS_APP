@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,88 +8,101 @@
     android:layout_height="match_parent"
     tools:context=".GPS_coord">
 
-    <!-- Кнопка возврата -->
     <Button
         android:id="@+id/tomain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Main Activity"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Время -->
     <TextView
         android:id="@+id/realtime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="415dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="28dp"
         android:text="Время:"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/tomain"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tomain" />
 
-    <!-- Широта -->
+
     <TextView
         android:id="@+id/latitude"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="180dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="8dp"
         android:text="Широта:"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/realtime"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/realtime" />
 
-    <!-- Долгота -->
     <TextView
         android:id="@+id/longitude"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="182dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="12dp"
         android:text="Долгота:"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/latitude"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/latitude" />
 
-    <!-- Высота -->
     <TextView
         android:id="@+id/altitude"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="184dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="200dp"
         android:text="Высота:"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/longitude"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- JSON вывод -->
+    <TextView
+        android:id="@+id/lte_info"
+        android:layout_width="211dp"
+        android:layout_height="30dp"
+        android:padding="4dp"
+        android:text="LTE info"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.92"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.162" />
+
     <TextView
         android:id="@+id/jsonLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="Сохранённые координаты:"
-        android:textStyle="bold"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/altitude"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="8dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.346" />
 
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
-        android:layout_height="160dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/jsonLabel"
+        android:layout_height="140dp"
+        android:layout_margin="8dp"
+        android:layout_marginTop="172dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/jsonLabel">
 
         <TextView
             android:id="@+id/json_output"
@@ -100,30 +114,27 @@
             android:textSize="14sp" />
     </ScrollView>
 
-    <!-- Логи обмена с сервером -->
     <TextView
         android:id="@+id/logLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Логи соединения:"
-        android:textStyle="bold"
         android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/scrollView2"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="8dp" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <ScrollView
         android:id="@+id/logScroll"
-        android:layout_width="385dp"
-        android:layout_height="247dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logLabel"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/tvSockets"
@@ -133,7 +144,7 @@
             android:padding="8dp"
             android:scrollbars="vertical"
             android:text="Логи передачи сообщений"
-            android:textSize="14sp" />
+            android:textSize="14sp"/>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

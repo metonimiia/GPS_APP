@@ -224,7 +224,7 @@ class GPS_coord : AppCompatActivity() {
                 appendLog("[Клиент] JSON пустой, отправлять нечего")
                 return@Thread
             }
-            val serverAddr = "tcp://10.100.165.149:2222"
+            val serverAddr = "tcp://10.161.151.149:2222"
             try {
                 ZContext().use { context ->
                     context.createSocket(SocketType.REQ).use { socket ->
